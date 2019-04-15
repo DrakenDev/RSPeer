@@ -73,6 +73,8 @@ public class TaskHandler {
 	}
 
 	public static boolean canSellItem(Item requestedItem) {
+		if (!requestedItem.isExchangeable()) return false;
+		if (requestedItem.getId() == 995) return false;
 		Log.fine("checking if we can sell: " + requestedItem.getName());
 		List<RSItem> itemsToNotSell = new ArrayList<RSItem>();
 		if (CURRENT_TASK != null) {

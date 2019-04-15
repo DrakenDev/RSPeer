@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.nex.communication.NexHelper;
 import com.nex.communication.message.request.RequestAccountInfo;
 import com.nex.script.Exchange;
 import org.rspeer.runetek.adapter.component.Item;
@@ -35,26 +36,30 @@ public class CheckIfWeShallSellItems extends Action {
 	// used to check when last time we checked items was
 	public static long last_check = 0;
 
-	public static void execute() {
+	public static void execute(boolean weNeedMoneyNow, int min_sale) {
 		int totalPrice = 0;
 		if (Bank.isOpen()) {
 			if (!Inventory.isEmpty()) {
 				Bank.depositInventory();
-			} else {
+				Time.sleepUntil(Inventory::isEmpty, 200, 3000);
+			}
+			if (Inventory.isEmpty()){
 				ArrayList<SellItemEvent> itemsToSell = new ArrayList<SellItemEvent>();
 				ArrayList<Integer> bankContents = new ArrayList<>();
 				for (Item item : Bank.getItems()) {
+					if(!item.isExchangeable()) continue;
 					bankContents.add(item.getId());
 				}
 				Exchange.preCache(bankContents);
 				for (Item item : Bank.getItems()) {
+					if(!item.isExchangeable()) continue;
 					if(item.getId() == 995) {
 						totalPrice += Bank.getCount(995);
 					}else {
-						RSItem rsItem = RSItem.getItem(item.getName(), item.getId());
-						int itemValue = rsItem.getItemPrice() * Bank.getCount(item.getId());
+						RSItem rsItem = new RSItem(item.getName(), item.getId());
+						int itemValue = rsItem.getItemPrice() * item.getStackSize();
 						Log.fine(rsItem.getName() + ":  price: " + itemValue);
-						if (itemValue > 3000 && TaskHandler.canSellItem(item) && (Quest.getQuestPoints() >= 7 || !untradeableItems.contains(item.getName()))) {
+						if (itemValue > min_sale && TaskHandler.canSellItem(item) && (Quest.getQuestPoints() >= 7 || !untradeableItems.contains(item.getName()))) {
 							itemsToSell.add((new SellItemEvent(new GESellItem(rsItem))));
 							totalPrice += itemValue;
 						}
@@ -63,11 +68,15 @@ public class CheckIfWeShallSellItems extends Action {
 
 				Log.fine("TOTAL PRICE:" + totalPrice);
 				int muleThreshold = Nex.MULE_THRESHOLD_NOW();
-				if(totalPrice - Nex.MONEY_NEEDED > muleThreshold) {
+				if(totalPrice - Nex.MONEY_NEEDED > muleThreshold && NexHelper.activelyConnected()) {
 					itemsToSell.forEach(event ->{
 						SellItemHandler.addItem(event);
 					});
 					TaskHandler.addTaskAndResetStack(new PrepareForMuleDepositTask());
+				}else if(weNeedMoneyNow){
+					itemsToSell.forEach(event ->{
+						SellItemHandler.addItem(event);
+					});
 				}
 				last_check = System.currentTimeMillis();
 			}
@@ -75,7 +84,6 @@ public class CheckIfWeShallSellItems extends Action {
 			Bank.open();
 			Time.sleepUntil(() -> Bank.isOpen(), 200, 5000);
 		}
-
 	}
 
 	public static long getNextCheckInMilli() {

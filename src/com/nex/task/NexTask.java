@@ -113,7 +113,7 @@ public abstract class NexTask implements RenderListener, ChatMessageListener, Ob
 	}
 	
 	public long getTimeLeft() {
-		return (timeStarted + breakAfter * 1000 * 60) - System.currentTimeMillis();
+		return (timeStarted + (breakAfter * 1000 * 60)) - System.currentTimeMillis();
 	}
 	
 	public String getTaskID() {

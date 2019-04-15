@@ -10,8 +10,10 @@ import com.nex.task.SkillTask;
 import com.nex.task.helper.InteractionHelper;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.commons.Time;
+import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.component.Dialog;
 import org.rspeer.runetek.api.component.WorldHopper;
+import org.rspeer.runetek.api.input.Keyboard;
 import org.rspeer.runetek.api.movement.position.Area;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
@@ -40,10 +42,15 @@ public class DoricsQuest extends QuestTask {
 
 
     public int loop() {
-        if (pendingOption()) {
-            selectOption("anvil", "material", "right back");
-        } else if (pendingContinue()) {
-            selectContinue();
+        if (Dialog.isOpen()){
+            if (pendingOption()) {
+                selectOption("anvil", "material", "right back");
+            } else if (pendingContinue()) {
+                selectContinue();
+            } else if (!Dialog.isProcessing() && !Dialog.canContinue()){
+                Keyboard.sendText("0");
+                Keyboard.pressEnter();
+            }
         }
         else if (getItemToWithdraw(requiredInventory) != null) {
             BankHandler.addBankEvent(new WithdrawItemEvent(getItemToWithdraw(requiredInventory)).setBankArea(BuyItemHandler.getGEArea()));

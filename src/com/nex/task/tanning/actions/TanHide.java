@@ -37,7 +37,7 @@ public class TanHide extends Task {
                     Item leather = Inventory.getFirst(taskRunner.ANY_TANNED);
                     int count = Inventory.getCount(taskRunner.ANY_TANNED);
                     taskRunner.totalTanned += count;
-                    taskRunner.totalProfit += Exchange.getPrice(leather.getId()) * count;
+                    taskRunner.totalProfit += Exchange.getSellPrice(leather.getId()) * count;
                     return 300;
                 }
             }

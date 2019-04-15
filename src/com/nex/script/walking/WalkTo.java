@@ -1,17 +1,15 @@
 package com.nex.script.walking;
 
 import com.nex.script.grandexchange.BuyItemHandler;
-import javafx.geometry.Pos;
+import org.rspeer.runetek.adapter.scene.Player;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.commons.Time;
-import com.nex.script.walking.WalkTo;
 import com.nex.task.quests.GoblinDiplomacyQuest;
 
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.*;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.path.Path;
-import org.rspeer.runetek.api.movement.path.PredefinedPath;
 import org.rspeer.runetek.api.movement.pathfinding.executor.PathExecutor;
 import org.rspeer.runetek.api.movement.position.Area;
 import org.rspeer.runetek.api.movement.position.Position;
@@ -27,7 +25,7 @@ public class WalkTo {
 	static Area lumbrdigeCastle = Area.rectangular(3204, 3228, 3216, 3207);
 	static Area cowfield =  Area.rectangular(3135, 3310, 3204, 3339);
 	static Area Alkharid = Area.rectangular(3266, 3144, 3341, 3322);
-	static Area Riverbank = Area.rectangular(3105, 3338, 3151, 3402);
+	static Area Riverbank = Area.rectangular(3105, 3338, 3151, 3390);
 	static Area FaladorSouthWall = Area.rectangular(3006, 3316, 3035, 3331);
 	static Area DraynorManorBotLeft = Area.rectangular(3080, 3326, 3117, 3342);
 	static Area DraynorManorHouse = Area.rectangular(3091, 3352, 3126, 3374);
@@ -54,15 +52,18 @@ public class WalkTo {
 			new Position(3238, 3302, 0),
 			new Position(3236, 3306, 0)
 	};
-	static Area LumbrdigeToChickenArea = Area.rectangular(3207, 3210, 3245, 3296);
+	static Area LumbrdigeToChickenArea = Area.rectangular(3215, 3210, 3245, 3296);
 
 	static PathExecutor executor;
 	static Path path;
-	static Position lastPosition;
+	static Position lastTarget;
 	public static boolean execute(Position position) {
-		return execute(position, 2);
+		return execute(position, 2, true);
 	}
 	public static boolean execute(Position position, int random) {
+		return execute(position, random, true)
+	}
+	public static boolean execute(Position position, int random, boolean wait) {
 
 		Position curPos = Players.getLocal().getPosition();
 		lumbrdigeCastle.setIgnoreFloorLevel(true);
@@ -108,13 +109,13 @@ public class WalkTo {
 			executor = new PathExecutor();
 			path = null;
 		}
-		else if(lastPosition == null || lastPosition.distance(position) > random) {
-			lastPosition = position;
+		else if(lastTarget == null || lastTarget.distance(position) > random) {
+			lastTarget = position;
 			executor = new PathExecutor();
 			path = null;
 		}
 
-		lastPosition = position;
+		lastTarget = position;
 
 		//idiot special exception. get rid asap
 		if(curPos.distance(GoblinDiplomacyQuest.goblinPos) < 40) {
@@ -140,9 +141,18 @@ public class WalkTo {
 		//if(Movement.buildPath(position) != null) {
 			result = Movement.walkTo(position, executor);
 		//}
+
 		if(!result)
 			Log.fine("Failed to walk...");
+		else if (wait)
+			Time.sleepUntil(WalkTo::closeToFlag,  400,5000);
 		return result;
+	}
+
+	static boolean closeToFlag(){
+		Player player = Players.getLocal();
+		if(player == null) return true;
+		return player.getPosition().equals(lastTarget) || !player.isMoving() || (Movement.getDestinationDistance() <= 8 && player.getPosition().distance(lastTarget) >= 7);
 	}
 
 	static int run_at = Random.nextInt(9,16);
@@ -177,6 +187,8 @@ public class WalkTo {
 			Movement.setWalkFlag(path[nearest].randomize(2));
 		else
 			Movement.setWalkFlag(towards(pos, path[nearest], 15).randomize(2));
+		if (!Movement.isDestinationSet())
+			Movement.walkTo(path[nearest]);
 		return true;
 	}
 	public static boolean executeRev(Position[] path) {

@@ -111,15 +111,15 @@ public class CutTreeAction extends Action implements ObjectSpawnListener {
 	
 	private static Predicate<SceneObject> getAvailableTrees(Area actionArea, String treeName){
 		return tree -> actionArea.contains(tree) && tree.getName().equals(treeName);
-    };
+    }
 
 
 	
 	@Override
 	public void notify(ObjectSpawnEvent e) {
 		if(currentTree != null && e.getPosition().equals(currentTree.getPosition())) {
-			Log.fine("Our tree disappeared");
 			if(currentTree.getPosition().distance() <= 4 && currentTree.getName() != "Tree") {
+				Log.fine("Our tree disappeared");
 				standPositions.put(currentTree.getPosition(), Players.getLocal().getPosition());
 				treePositions.put(currentTree.getPosition(), System.currentTimeMillis());
 			}

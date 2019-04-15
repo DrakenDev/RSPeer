@@ -54,7 +54,7 @@ public class WoodcuttingTask extends SkillTask implements ChatMessageListener, I
 		setTreeName(treeName);
 		setAxe(axe);	
 		addRequiredItem(axe);
-		this.logPrice = Exchange.getPrice(getLogID());
+		this.logPrice = Exchange.getSellPrice(getLogID());
 		this.startExperience = Skills.getExperience(getSkill());
 	}
 
@@ -68,7 +68,7 @@ public class WoodcuttingTask extends SkillTask implements ChatMessageListener, I
 		if(itemToEquip != null) {
 			GearHandler.addItem(itemToEquip);
 		} else if (playerNeedAxe()) {
-			Nex.MONEY_NEEDED = (int)(Exchange.getPrice(axe.getId()) * 1.5f); //Pre-emptively set how much money we need to keep, in-case it does a mule deposit
+			Nex.MONEY_NEEDED = (int)(Exchange.getBuyPrice(axe.getId()) * 1.5f); //Pre-emptively set how much money we need to keep, in-case it does a mule deposit
 			BankHandler.addBankEvent(new WithdrawItemEvent(new WithdrawItem(axe, 1,1)).setBankArea(bankArea));
 		}
 		else if (Inventory.isFull()) {
@@ -107,7 +107,13 @@ public class WoodcuttingTask extends SkillTask implements ChatMessageListener, I
 	}
 
 	private boolean playerNeedAxe() {
-		return !Inventory.contains(getAxe().getName()) && !Equipment.contains(getAxe().getName());
+		if (axe != null && axe.getName().equals("Bronze axe") && Skills.getCurrentLevel(Skill.WOODCUTTING) >= 6 && Inventory.getCount() <= 2) {
+			removeRequiredItem(axe);
+			RSItem steelAxe = new RSItem("Steel axe", 1353);
+			setAxe(steelAxe);
+			addRequiredItem(axe);
+		}
+		return !Inventory.contains(axe.getName()) && !Equipment.contains(axe.getName());
 	}
 
 

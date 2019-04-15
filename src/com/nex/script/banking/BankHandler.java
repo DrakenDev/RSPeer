@@ -25,7 +25,7 @@ public class BankHandler {
 			WalkTo.execute(bankEvent.getBankArea().getCenter());
 			Log.fine("lets walk");
 		}else if(CheckIfWeShallSellItems.getTimeTilNextCheckInMinutes() <= 0) {
-			CheckIfWeShallSellItems.execute();
+			CheckIfWeShallSellItems.execute(false, 3000);
 		}else {
 			bankEvent.execute();
 		}

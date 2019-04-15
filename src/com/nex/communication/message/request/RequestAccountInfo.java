@@ -4,6 +4,7 @@ import com.nex.script.Nex;
 import com.nex.script.handler.RandomHandler;
 import com.nex.task.quests.events.EnableFixedModeEvent;
 import com.nex.task.quests.tutorial.TutorialIsland;
+import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.component.tab.Skill;
 import org.rspeer.runetek.api.component.tab.Skills;
@@ -72,6 +73,7 @@ public class RequestAccountInfo extends NexRequest {
             java.util.Random r = new java.util.Random(Nex.USERNAME.length());
             Log.fine("Time since big ban " + Nex.timeSinceBanWave());
             TutorialIsland.DO_NOOB_FIGHTING = isSlave && Nex.isHoursAfterBan();
+            if(r.nextDouble() >= 0.5) TutorialIsland.DO_NOOB_FIGHTING = false;
             if(Inventory.getCount(true, 995) > 100 || Skills.getLevel(Skill.WOODCUTTING) > 1)
                 TutorialIsland.DO_NOOB_FIGHTING = false;
         }

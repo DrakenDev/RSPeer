@@ -71,7 +71,7 @@ public class BuyItemEvent implements IHandlerTask {
 	public void execute() {
 		Log.fine("Buy item event");
 		Log.fine("Item id:" + item.getItemID());
-		Log.fine("Price:" + Exchange.getPrice(item.getItemID()));
+		Log.fine("Price:" + Exchange.getBuyPrice(item.getItemID()));
 		Log.fine("Item: " + item.getItemName() + ":" + item.getAmount() + ":" + item.getTotalPrice());
 		if (!checkedValueableItems) {
 			checkValuableItems();
@@ -85,6 +85,9 @@ public class BuyItemEvent implements IHandlerTask {
 				List<RSGrandExchangeOffer> offers = getNonEmptyOffers();
 				if (offers != null && !offers.isEmpty()) {
 					handleExistingOffers(offers);
+				}
+				RSGrandExchangeOffer offer = getExistingOffer();
+				if(offer != null) {
 				} else if (Inventory.getCount(true, item.getItemID()) >= item.getBuyAmount() || Inventory.getCount(true, item.getItemName()) >= item.getBuyAmount()) {
 					exchangeIfNoted(item);
 					finished = true;
@@ -192,6 +195,7 @@ public class BuyItemEvent implements IHandlerTask {
 			GrandExchange.collectAll(false);
 			offers = getNonEmptyOffers();
 		}
+		boolean offersFull = (offers.size() == 3);
 		for (RSGrandExchangeOffer offer : offers) {
 			if (offer.getProgress() == Progress.FINISHED) {
 				GrandExchange.collectAll(false);
@@ -211,6 +215,8 @@ public class BuyItemEvent implements IHandlerTask {
 					lastRaisedPrice = System.currentTimeMillis();
 					item.raiseItemPrice();
 					withdrawnMoney = false;
+					offer.abort();
+				} else if(offersFull){
 					offer.abort();
 				}
 			}
@@ -275,7 +281,14 @@ public class BuyItemEvent implements IHandlerTask {
 			}
 		}
 		return offers;
-
+	}
+	public RSGrandExchangeOffer getExistingOffer() {
+		for (RSGrandExchangeOffer offer : GrandExchange.getOffers()) {
+			if (offer.getType() != Type.EMPTY && offer.getItemId() == item.getItemID()) {
+				return offer;
+			}
+		}
+		return null;
 	}
 
 }

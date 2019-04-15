@@ -1,6 +1,7 @@
 package com.nex.script.grandexchange;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -62,7 +63,7 @@ public class SellItemEvent implements IHandlerTask {
 			}
 		}else {
 			if(GrandExchange.isOpen()) {
-				Log.fine("lets sell");
+				Log.fine("lets sell " + item.getItemName());
 				List<RSGrandExchangeOffer> offers = getNonEmptyOffers();
 				if(offers != null && !offers.isEmpty()) {
 					handleExistingOffers(offers);

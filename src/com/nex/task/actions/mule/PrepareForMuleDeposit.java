@@ -14,7 +14,7 @@ import com.nex.script.Nex;
 import com.nex.script.handler.TaskHandler;
 import com.nex.task.action.Action;
 import com.nex.task.mule.DepositToPlayerTask;
-
+import org.rspeer.ui.Log;
 
 
 public class PrepareForMuleDeposit extends Action {
@@ -34,6 +34,7 @@ public class PrepareForMuleDeposit extends Action {
 				NexHelper.pushMessage(new MuleRequest("MULE_DEPOSIT:995:" + depositAmount));
 				Time.sleepUntil(() -> TaskHandler.getCurrentTask() != null && TaskHandler.getCurrentTask().getClass().equals(DepositToPlayerTask.class), 20000);
 			}else{
+				Log.fine("Cancelling Prepare For Mule Deposit");
 				TaskHandler.removeTask();
 			}
 		}

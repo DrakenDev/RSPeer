@@ -60,6 +60,8 @@ public class RandomHandler {
             //NEEDS TESTING
         } else if (eventName.equals("Frog")) {
             Npc frogPrince = Npcs.getNearest(npc -> !npc.containsAction("Dismiss") && npc.getName().equals("Frog") && npc.containsAction("Talk-to"));
+            if(frogPrince == null)
+                return true;
             if (!Dialog.isOpen()) {
                 frogPrince.interact(x -> true);
                 Time.sleepUntil(Dialog::isOpen, 1000, 10000);

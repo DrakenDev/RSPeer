@@ -145,28 +145,36 @@ public class Nex extends Script
 //		TaskHandler.addPrioritizedTask(new MiningTask(barbMine, null, new Integer[] {7486,7485}, new RSItem("Bronze pickaxe", 1265)));
 	}
 
+	long twentyMins = 20 * 60 * 1000;
+	long twoMins = 20 * 60 * 1000;
 	@Override
 	public int loop() {
-		if(failedWalk  >= 40 || !SHOULD_RUN || NexHelper.secondsSinceLastLog() > 120) {
+		long secondsSinceLastLog = nexHelper.secondsSinceLastLog();
+		if(failedWalk  >= 40 || !SHOULD_RUN || (secondsSinceLastLog > twoMins) || (TaskHandler.getCurrentTask() == null && secondsSinceLastLog > twoMins)) {
 			Log.fine("lets quit");
 			System.exit(1);
 		}
-		//Log.fine("Nex Loop");
-		if (loggedIn()) {
-			if (taskIsCompleted()) {
-				TaskHandler.removeTask();
-			}else if(shouldDoHandler()) {
-				//command query separation.. none for me. Fix this in a better way. for now. Handle like this
-			}
-			else if (TaskHandler.getCurrentTask() == null) {
-				getTask();
-			} else if (RandomHandler.handleRandom()) {
-				return Random.nextInt(100, 500);
+		try {
+			//Log.fine("Nex Loop");
+			if (loggedIn()) {
+				if (taskIsCompleted()) {
+					Log.fine("Task completed");
+					TaskHandler.removeTask();
+				} else if (shouldDoHandler()) {
+					//command query separation.. none for me. Fix this in a better way. for now. Handle like this
+				} else if (TaskHandler.getCurrentTask() == null) {
+					getTask();
+				} else if (RandomHandler.handleRandom()) {
+					return Random.nextInt(100, 500);
+				} else {
+					return TaskHandler.getCurrentTask().loop();
+				}
 			} else {
-				return TaskHandler.getCurrentTask().loop();
+				login();
 			}
-		} else {
-			login();
+		}
+		catch (Exception ex){
+			Log.severe(ex);
 		}
 		return 600;
 	}
@@ -238,10 +246,19 @@ public class Nex extends Script
 		}
 	}
 
+	LoginScreen login;
 	private void login() {
 		Log.fine("Is not logged in");
-		Login.enterCredentials(getAccount().getUsername(), getAccount().getPassword());
-		Mouse.click(279, 301);
+		if(login == null) {
+			login = new LoginScreen(this);
+			login.setStopScriptOn(Response.ACCOUNT_DISABLED, true);
+			login.setStopScriptOn(Response.ACCOUNT_LOCKED, true);
+			login.setStopScriptOn(Response.RUNESCAPE_UPDATE, true);
+		}
+		if(login.validate())
+			login.process();
+//		Login.enterCredentials(getAccount().getUsername(), getAccount().getPassword());
+//		Mouse.click(279, 301);
 	}
 
 	@Override

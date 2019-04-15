@@ -100,7 +100,7 @@ public class FishingTask extends SkillTask implements ChatMessageListener, IMone
             requiredInventory.addItem(item);
         }
         Log.fine("Going to fish for " + selectedFish.getRawName());
-        this.priceEa = Exchange.getPrice(Exchange.getID(selectedFish.getRawName()));
+        this.priceEa = Exchange.getSellPrice(Exchange.getID(selectedFish.getRawName()));
         this.startExperience = Skills.getExperience(getSkill());
     }
 
@@ -340,7 +340,7 @@ public class FishingTask extends SkillTask implements ChatMessageListener, IMone
             Item latestFish = Inventory.getLast(i->i.getName().startsWith("Raw"));
             if(latestFish != null) {
                 Log.fine("We caught a " + latestFish.getName());
-                priceEa = Exchange.getPrice(latestFish.getId());
+                priceEa = Exchange.getSellPrice(latestFish.getId());
                 profit += priceEa;
             }
         }

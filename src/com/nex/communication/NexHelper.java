@@ -77,12 +77,16 @@ public class NexHelper implements Runnable {
 		pushMessage(new RequestAccountInfo());
 	}
 
+	public static boolean activelyConnected (){
+		return secondsSinceLastLog() < 120;
+	}
+
 	@Override
 	public void run() {
 		Log.fine("started NexHelper 2.0 with selenium support");
-		for(int retry = 0; retry < 200; retry++) {
+		while (Nex.SHOULD_RUN){
 			try {
-				int tmp_port = port + Random.nextInt(0, 3);
+				int tmp_port = port;// + Random.nextInt(0, 3);
 				Log.fine("Connecting port " + tmp_port);
 				Socket socket = new Socket(ip, tmp_port);
 				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -98,7 +102,6 @@ public class NexHelper implements Runnable {
 					Thread.sleep(1000);
 				}
 				initialized = initializeContactToSocket(out, in);
-				retry = 0;
 				lastLog = System.currentTimeMillis();//Reset timeout
 				whileShouldRun(out, in); // main loop, always run while script should be running
 			} catch (Exception e) {
@@ -143,6 +146,7 @@ public class NexHelper implements Runnable {
 	long loggedOutSince = 0;
 	static long lastSetCurPos = 0;
 	long posTimeout = 10 * 60 * 1000;
+	long posTimeoutGE = 35 * 60 * 1000;
 	Position lastPos;
 	void checkStuck(){
 		if (!Game.isLoggedIn()){
@@ -151,13 +155,18 @@ public class NexHelper implements Runnable {
 				NexHelper.pushMessage(new DisconnectMessage("Been logged out for too long"));
 		} else {
 			loggedOutSince = 0;
+			long timeout = posTimeout;
 			Player player = Players.getLocal();
-			Position pos = player.getPosition();
-			if (lastPos == null || lastPos.distance(pos) > 3 || pos.distance(BankLocation.GRAND_EXCHANGE.getPosition()) < 15) {
-				lastPos = pos;
-				clearWatchdog();
+			if(player != null) {
+				Position pos = player.getPosition();
+				if (lastPos == null || lastPos.distance(pos) > 3 || RequestAccountInfo.account_type.contains("MULE")) {
+					lastPos = pos;
+					clearWatchdog();
+				}
+				if(pos.distance(BankLocation.GRAND_EXCHANGE.getPosition()) < 15)
+					posTimeout = posTimeoutGE;
 			}
-			if (lastSetCurPos != 0 && (System.currentTimeMillis() - lastSetCurPos) > posTimeout)
+			if (lastSetCurPos != 0 && (System.currentTimeMillis() - lastSetCurPos) > timeout)
 				System.exit(1);
 		}
 	}
@@ -225,7 +234,7 @@ public class NexHelper implements Runnable {
 	 * Method to take care of every log
 	 */
 	private void logToServer(PrintWriter out, BufferedReader in) throws InterruptedException, IOException {
-		if (System.currentTimeMillis() - lastLog > 10_000) { // only log every 5 sec
+		if (System.currentTimeMillis() - lastLog > 12_000) { // only log every 5 sec
 			logToServerNow(out, in);
 		}
 	}

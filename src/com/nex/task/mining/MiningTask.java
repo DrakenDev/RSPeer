@@ -43,13 +43,13 @@ public class MiningTask extends SkillTask implements ChatMessageListener {
 	int oresMined;
 	int orePrice;
 
-	public MiningTask(Area actionArea, Area bankArea, Integer[] rocks,RSItem axe) {
+	public MiningTask(Area actionArea, Area bankArea, Integer[] rocks, RSItem axe) {
 		setActionArea(actionArea);
 		setBankArea(bankArea);
 		this.rocks = Arrays.asList(rocks);
 		setPickAxe(axe);	
 		addRequiredItem(axe);
-		this.orePrice = Exchange.getPrice(getLogID());
+		this.orePrice = Exchange.getSellPrice(getLogID());
 		this.startExperience = Skills.getExperience(getSkill());
 	}
 
@@ -59,7 +59,7 @@ public class MiningTask extends SkillTask implements ChatMessageListener {
 		this.rocks = rocks;
 		setPickAxe(axe);	
 		addRequiredItem(axe);
-		this.orePrice = Exchange.getPrice(getLogID());
+		this.orePrice = Exchange.getSellPrice(getLogID());
 	}
 
 	// TODO - More generic. Do not check if player is in area all the time.

@@ -40,7 +40,7 @@ public class LootAction{
 			Time.sleepUntil(()-> getCount(pickable) > preInventoryCount, 10000); 	//do not break the sleep until we successfully ate the food.
 			int lootCount = getCount(pickable) - preInventoryCount;
 			if(lootCount > 0) {
-				int moneyGained = Exchange.getPrice(pickable.getId()) * lootCount;
+				int moneyGained = Exchange.getSellPrice(pickable.getId()) * lootCount;
 				Log.fine("LOOTED: " + moneyGained);
 				lootTracker.addGained(moneyGained);
 			}
@@ -59,7 +59,7 @@ public class LootAction{
 	public ArrayList<Pickable> getValuableDrops() {
 		ArrayList<Pickable> list = new ArrayList<Pickable>();
 		for (Pickable item : Pickables.getLoaded()) {
-			int price = Exchange.getPrice(item.getId());
+			int price = Exchange.getSellPrice(item.getId());
 			if (item.isPositionInteractable() && price * item.getStackSize() > threshold) {
 				list.add(item);
 			}
@@ -72,7 +72,7 @@ public class LootAction{
 	
 	public Pickable getValuableDrop() {
 		for (Pickable item : Pickables.getLoaded()) {
-			int price = Exchange.getPrice(item.getId());
+			int price = Exchange.getSellPrice(item.getId());
 			if (lootArea.contains(item) && item.isPositionWalkable() && price * item.getStackSize() > threshold) {
 				return item;
 			}

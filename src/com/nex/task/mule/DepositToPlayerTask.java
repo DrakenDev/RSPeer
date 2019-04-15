@@ -62,9 +62,8 @@ public class DepositToPlayerTask extends Mule {
 
 		String name = Exchange.getName(itemID);
 
-		int coinsToGive = getItemAmount();
 		if(itemID != 995){//Not coins
-			coinsToGive = 0;
+			int coinsToGive = 0;
 
 			CheckIfWeShallSellItems.dontSell = true;
 			int qtyOfLoadsToBuy = 10;

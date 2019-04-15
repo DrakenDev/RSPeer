@@ -56,7 +56,7 @@ public class RequestTask extends NexRequest {
 				int coins = Inventory.getCount(true, 995);
 				if(RequestAccountInfo.account_type != null && RequestAccountInfo.account_type.equals("MULE") && coins > 100000 && TaskHandler.available_tasks.isEmpty()) {
 					Log.fine("Idle Mule");
-					if (coins > Nex.MULE_THRESHOLD_NOW()) {
+					if (coins > Nex.MULE_THRESHOLD_NOW() && NexHelper.activelyConnected()) {
 						TaskHandler.addTaskAndResetStack(new PrepareForMuleDepositTask());
 						return;
 					}

@@ -2,6 +2,8 @@ package com.nex.script.banking;
 
 import com.nex.communication.message.request.RequestAccountInfo;
 import com.nex.script.Nex;
+import com.nex.script.grandexchange.SellItemHandler;
+import com.nex.task.actions.mule.CheckIfWeShallSellItems;
 import org.rspeer.runetek.adapter.component.Item;
 import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
@@ -78,6 +80,11 @@ public class WithdrawItemEvent extends BankEvent {
 				Bank.withdraw(id, amount);
 				Time.sleepUntil(() -> Inventory.contains(id), 5000);
 			} else if (id == 995) {
+				CheckIfWeShallSellItems.execute(true, amount / 4);
+				if(SellItemHandler.getSellItemEvent() != null) {
+					return;
+				}
+
 				if(amount < Nex.MIN_WITHDRAW) {
 					amount = Nex.MIN_WITHDRAW;
 				}

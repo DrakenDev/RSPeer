@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 
 
 import com.nex.script.walking.WalkTo;
+import org.rspeer.runetek.api.Game;
+import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.event.types.ChatMessageEvent;
 import org.rspeer.runetek.event.types.ObjectSpawnEvent;

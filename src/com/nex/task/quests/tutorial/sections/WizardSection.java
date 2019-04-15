@@ -1,10 +1,6 @@
 package com.nex.task.quests.tutorial.sections;
 
 
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.rspeer.runetek.adapter.scene.Npc;
 import org.rspeer.runetek.adapter.scene.SceneObject;
 import org.rspeer.runetek.api.commons.Time;
@@ -21,6 +17,7 @@ import org.rspeer.runetek.api.movement.position.Position;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.api.scene.Players;
 import org.rspeer.runetek.api.scene.SceneObjects;
+import org.rspeer.ui.Log;
 
 public final class WizardSection extends TutorialSection {
 
